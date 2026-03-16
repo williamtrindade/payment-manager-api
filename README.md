@@ -30,9 +30,11 @@ Suba a aplicação junto com os mocks dos gateways:
 
 ### 4. Instalar Dependências e Configurar Banco
 Execute os comandos dentro do container da aplicação para preparar o projeto:
-docker-compose exec app composer install
-docker-compose exec app php artisan key:generate
-docker-compose exec app php artisan migrate --seed
+> docker-compose exec app composer install
+
+> docker-compose exec app php artisan key:generate
+
+> docker-compose exec app php artisan migrate --seed
 
 *O Seeder configurará os usuários de teste e os gateways dinamicamente com base no seu .env.*
 
