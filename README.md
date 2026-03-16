@@ -15,8 +15,9 @@ Este projeto é um orquestrador de pagamentos que garante a continuidade da vend
 ## ⚙️ Instalação e Execução (Docker)
 
 ### 1. Clonar o Repositório
-git clone git@github.com:williamtrindade/payment-manager-api.git
-cd payment-manager-api
+> git clone git@github.com:williamtrindade/payment-manager-api.git  
+
+> cd payment-manager-api
 
 ### 2. Configuração de Ambiente
 Crie o arquivo .env e configure as credenciais para autenticar nos mocks:
