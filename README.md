@@ -1,59 +1,79 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🚀 Multi-Gateway Payment System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Este projeto é um orquestrador de pagamentos que garante a continuidade da venda através de um sistema de Failover.
 
-## About Laravel
+## 🛠️ Padrões e Arquitetura Pensados
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+* Strategy Pattern: Cada gateway possui seu próprio Provider, isolando regras de payload, endpoints e headers customizados.
+* Failover Automático: O sistema percorre os gateways ativos por ordem de prioridade até obter sucesso, garantindo a conversão da venda.
+* RBAC (Role-Based Access Control): Controle de acesso granular (ADMIN, FINANCE, MANAGER, OPERATOR) via Middleware customizado.
+* Data Transfer Objects (DTO): Uso de CardDTO para garantir tráfego tipado e seguro de dados sensíveis de cartões.
+* Resiliência de Token: Lógica de retentativa que detecta `jwt expired` no Gateway 1.
+* Uso de cache para salvar o token entregue pelo gateway 1.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
+## ⚙️ Instalação e Execução (Docker)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 1. Clonar o Repositório
+git clone git@github.com:williamtrindade/payment-manager-api.git
+cd payment-manager-api
 
-## Learning Laravel
+### 2. Configuração de Ambiente
+Crie o arquivo .env e configure as credenciais para autenticar nos mocks:
+cp .env.example .env
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 3. Subir os Containers
+Suba a aplicação junto com os mocks dos gateways:
+docker-compose up -d --build
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 4. Instalar Dependências e Configurar Banco
+Execute os comandos dentro do container da aplicação para preparar o projeto:
+docker-compose exec app composer install
+docker-compose exec app php artisan key:generate
+docker-compose exec app php artisan migrate --seed
 
-## Laravel Sponsors
+*O Seeder configurará os usuários de teste e os gateways dinamicamente com base no seu .env.*
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## 🛣️ Detalhamento de Rotas
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+| Coleção / Recurso | Método | Endpoint | Ação                                        |
+| :--- | :---: | :--- |:--------------------------------------------|
+| **Auth** | `POST` | `/api/login` | Autenticação e geração de token             |
+| **Checkout** | `POST` | `/api/buy` | Processa uma nova compra (Failover ativo)   |
+| **Product** | `GET` | `/api/products` | Lista todos os produtos                     |
+| | `GET` | `/api/products/{id}` | Exibe os detalhes de um produto             |
+| | `POST` | `/api/products` | Cria um novo produto                        |
+| | `PUT` | `/api/products/{id}` | Atualiza um produto existente               |
+| | `DELETE` | `/api/products/{id}` | Remove um produto                           |
+| **Transactions**| `GET` | `/api/transactions` | Lista o histórico de transações             |
+| | `GET` | `/api/transactions/{id}` | Exibe os detalhes de uma transação          |
+| | `POST` | `/api/transactions/{id}/refund` | Solicita o reembolso de uma transação       |
+| **Gateway** | `PATCH` | `/api/gateways/{id}/toggle` | Ativa ou desativa um gateway                |
+| | `PATCH` | `/api/gateways/{id}/priority` | Altera a ordem de prioridade (failover)     |
+| **User** | `GET` | `/api/users` | Lista os usuários administrativos           |
+| | `GET` | `/api/users/{id}` | Exibe os detalhes de um usuário             |
+| | `POST` | `/api/users` | Cria um novo usuário                        |
+| | `PUT` | `/api/users/{id}` | Atualiza os dados de um usuário             |
+| | `DELETE` | `/api/users/{id}` | Remove um usuário                           |
+| **Clients** | `GET` | `/api/clients` | Lista os clientes que já compraram          |
+| | `GET` | `/api/clients/{id}` | Exibe os detalhes do cliente e suas compras |
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 🔌 Como adicionar um novo Gateway?
 
-## Code of Conduct
+O sistema foi desenhado respeitando o princípio Open/Closed (SOLID). Para adicionar o "Gateway 3":
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+1. Criar o Provider: Crie app/Gateways/Gateway3Provider.php implementando a PaymentGatewayInterface.
+2. Configurar Payload: Dentro da classe, defina se o gateway usa Headers customizados ou Bearer Token, e mapeie o JSON.
+3. Registrar no Service: No PaymentService.php, adicione o novo gateway no método getProvider().
+4. Adicionar ao Banco: Insira uma linha na tabela gateways.
+5. Resultado: O sistema de Failover agora incluirá o Gateway 3 automaticamente no loop de tentativas.
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🧪 Usuários de Teste (Padrão)
+* Admin: admin@betalent.tech / password
+* Finance: finance@betalent.tech / password
