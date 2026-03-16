@@ -25,7 +25,8 @@ Crie o arquivo .env e configure as credenciais para autenticar nos mocks:
 
 ### 3. Subir os Containers
 Suba a aplicação junto com os mocks dos gateways:
-docker-compose up -d --build
+
+> docker-compose up -d --build
 
 ### 4. Instalar Dependências e Configurar Banco
 Execute os comandos dentro do container da aplicação para preparar o projeto:
