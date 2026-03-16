@@ -42,7 +42,7 @@ Execute os comandos dentro do container da aplicação para preparar o projeto:
 
 ## 🛣️ Detalhamento de Rotas
 
-| Coleção / Recurso | Método | Endpoint | Ação                                        |
+| Recurso | Método | Endpoint | Ação                                        |
 | :--- | :---: | :--- |:--------------------------------------------|
 | **Auth** | `POST` | `/api/login` | Autenticação e geração de token             |
 | **Checkout** | `POST` | `/api/buy` | Processa uma nova compra (Failover ativo)   |
@@ -77,6 +77,17 @@ O sistema foi desenhado respeitando o princípio Open/Closed (SOLID). Para adici
 5. Resultado: O sistema de Failover agora incluirá o Gateway 3 automaticamente no loop de tentativas.
 
 ---
+
+## Testar a API com Postman
+
+Para facilitar disponibilizei uma **Collection do Postman** configurada com todas as requisições prontas para uso.
+
+### Baixando e Importando a Collection
+
+1. **Baixe o arquivo:** Acesse e baixe o arquivo [`API.postman_collection.json`](https://github.com/williamtrindade/payment-manager-api/blob/main/API.postman_collection.json) diretamente da raiz deste repositório.
+2. **Importe no seu Postman:**
+
+___
 
 ## 🧪 Usuários de Teste (Padrão)
 * Admin: admin@betalent.tech / password
