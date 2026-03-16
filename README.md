@@ -21,7 +21,7 @@ Este projeto é um orquestrador de pagamentos que garante a continuidade da vend
 
 ### 2. Configuração de Ambiente
 Crie o arquivo .env e configure as credenciais para autenticar nos mocks:
-cp .env.example .env
+> cp .env.example .env
 
 ### 3. Subir os Containers
 Suba a aplicação junto com os mocks dos gateways:
